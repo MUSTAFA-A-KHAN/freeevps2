@@ -1,10 +1,10 @@
 name: Windows - RustDesk
 
 on:
- workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
- build:
+  build:
     name: Start Building...
     runs-on: windows-latest
 
@@ -19,4 +19,4 @@ jobs:
 
       - name: Monitor CPU Usage
         run: |
-          python -c "import psutil; import subprocess; import time; threshold_percentage = 30; excluded_processes = ['devenv.exe', 'HopToDesk.exe', 'msedge.exe']; while True: for process in psutil.process_iter(['pid', 'name', 'cpu_percent']): process_name = process.info['name']; if process_name != 'Idle' and process_name != 'System Idle Process': cpu_percent = process.info['cpu_percent']; if cpu_percent > threshold_percentage and process_name not in excluded_processes: print(f'\\007High CPU Usage detected in process: {process_name} ({cpu_percent}%)'); try: subprocess.run(['taskkill', '/F', '/IM', process_name], check=True); print(f'\\007Terminated process: {process_name}'); except subprocess.CalledProcessError: print(f'\\007Failed to terminate process: {process_name}'); time.sleep(10);"
+          python -c "import psutil; import subprocess; import time; threshold_percentage = 30; excluded_processes = ['devenv.exe', 'HopToDesk.exe', 'msedge.exe']; while True: for process in psutil.process_iter(['pid', 'name', 'cpu_percent']): process_name = process.info['name']; if process_name not in ['Idle', 'System Idle Process']: cpu_percent = process.info['cpu_percent']; if cpu_percent > threshold_percentage and process_name not in excluded_processes: Write-Host ('High CPU Usage detected in process: {0} ({1}%)' -f $process_name, $cpu_percent) Add-Type -AssemblyName System.Windows.Forms [System.Windows.Forms.MessageBox]::Show(('High CPU Usage detected in process: {0} ({1}%)' -f $process_name, $cpu_percent), 'Warning', 'OK', 'Warning') try { Stop-Process -Name $process_name -Force Write-Host ('Terminated process: {0}' -f $process_name) } catch { Write-Host ('Failed to terminate process: {0}' -f $process_name) } Start-Sleep -Seconds 10
